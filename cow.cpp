@@ -59,12 +59,12 @@ void Cow::step(float time)
 	// convert the direction to [-180, 180] relative to d
 	float dir = fmodp(d - body.getRotation(), 360);
 	body.rotate(clamp<float>(-TURN_SPEED, dir, TURN_SPEED) * time);
-	dir = body.getRotation();
+	dir = body.getRotation(); // where we ended up facing
 	body.move(SPEED * time * cos(dir * M_PI / 180), SPEED * time * sin(dir * M_PI / 180));
-	setHead(dir);
+	setHead(dir); // update the head
 }
 
-void Cow::think()
+void Cow::think() // TODO
 {
 	using namespace std;
 	d = randm<float>(360.f) - 180.f;
