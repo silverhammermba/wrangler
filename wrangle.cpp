@@ -24,6 +24,8 @@ int main(int argc, char *argv[])
 	};
 	window.setVerticalSyncEnabled(true);
 
+	sf::View view (window.getView());
+
 	const int COWS = (argc == 2 ? atoi(argv[1]) : 1);
 
 	Cow *cows = new Cow[COWS];
@@ -42,6 +44,11 @@ int main(int argc, char *argv[])
 				window.close();
 			else if ((event.type == sf::Event::KeyReleased) && (event.key.code == sf::Keyboard::Escape))
 				window.close();
+			else if (event.type == sf::Event::Resized)
+			{
+				view.setSize((sf::Vector2f)window.getSize());
+				window.setView(view);
+			}
 		}
 
 		float time = clock.getElapsedTime().asSeconds();

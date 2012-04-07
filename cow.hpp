@@ -5,12 +5,15 @@
 
 class Cow
 {
-	enum {LENGTH = 10, WIDTH = 6};
 	sf::RectangleShape body;
 	sf::RectangleShape head;
 	float d;
 	void setHead(float);
 public:
+	static const float BLENGTH;
+	static const float BWIDTH;
+	static const float HLENGTH;
+	static const float HWIDTH;
 	static const float SPEED;
 	static const float TURN_SPEED;
 	Cow(const sf::Vector2f & position = sf::Vector2f(0, 0), const float direction = 0);

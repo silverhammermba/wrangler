@@ -9,26 +9,30 @@
 
 #define _USE_MATH_DEFINES
 
-const float Cow::SPEED = 10;
+const float Cow::BLENGTH = 14;
+const float Cow::BWIDTH = 7;
+const float Cow::HLENGTH = 6;
+const float Cow::HWIDTH = 4;
+const float Cow::SPEED = 20;
 const float Cow::TURN_SPEED = 72;
 
 // set the position of the head, when the cow is facing dir
 void Cow::setHead(float dir)
 {
-	head.setPosition(body.getTransform() * sf::Vector2f(LENGTH - 1.f, WIDTH / 2.f + 1.f)); // TODO why the + 1.f?
+	head.setPosition(body.getTransform() * sf::Vector2f(BLENGTH, BWIDTH / 2.f));
 	head.setRotation(dir);
 	// TODO kind of stupid and redundant
 	head.rotate(clamp<float>(-60, fmodp(d - body.getRotation(), 360), 60));
 }
 
-Cow::Cow(const sf::Vector2f & pos, const float dir) : body(sf::Vector2f(LENGTH, WIDTH)), head(sf::Vector2f(LENGTH * 3.f / 5.f, WIDTH - 4.f))
+Cow::Cow(const sf::Vector2f & pos, const float dir) : body(sf::Vector2f(BLENGTH, BWIDTH)), head(sf::Vector2f(HLENGTH, HWIDTH))
 {
 	d = dir;
-	body.setOrigin(LENGTH / 2.f, WIDTH / 2.f);
+	body.setOrigin(BLENGTH / 2.f, BWIDTH / 2.f);
 	body.setPosition(pos);
 	body.setRotation(dir);
 
-	head.setOrigin(2.f, (WIDTH - 2.f) / 2.f);
+	head.setOrigin(1.f, HWIDTH / 2.f);
 	setHead(dir);
 
 	body.setFillColor(sf::Color(237, 224, 177));
