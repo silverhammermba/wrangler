@@ -5,7 +5,7 @@
 
 class Cow
 {
-	enum {LENGTH = 20, WIDTH = 12};
+	enum {LENGTH = 10, WIDTH = 6};
 	sf::RectangleShape body;
 	sf::RectangleShape head;
 	float d;

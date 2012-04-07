@@ -7,7 +7,7 @@
 using std::cerr;
 using std::endl;
 
-const float AI_INTERVAL = 5;
+const float AI_INTERVAL = 0.5f;
 
 int main(int argc, char *argv[])
 {
@@ -29,8 +29,8 @@ int main(int argc, char *argv[])
 	Cow *cows = new Cow[COWS];
 	for(Cow *cow = cows; cow != cows + COWS; cow++)
 	{
-		cow->setPos(sf::Vector2f(400, 300)); //(randm<float>(800), randm<float>(600)));
-		cow->setDir(randm<float>(360.f));
+		cow->setPos(sf::Vector2f(400, 300));
+		cow->think();
 	}
 
 	while (window.isOpen())
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 			ai.restart();
 			for(Cow *cow = cows; cow != cows + COWS; cow++)
 				cow->think();
-			//cerr << 1.f / time << " fps\n";
+			cerr << 1.f / time << " fps\n";
 		}
 
 		for(Cow *cow = cows; cow != cows + COWS; cow++)

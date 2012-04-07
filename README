@@ -1,0 +1,7 @@
+Wrangler is (going to be) a 2D top down game about wrangling cows and such. I'm
+making it to teach myself C++11 and SFML 2.0, but also because I like playing
+local coop games with my friends.
+
+Eventually I plan to have 4 player local coop with controllers, and some fun
+class-based teamwork-based gameplay. Until then, however, it's mostly a testing
+bed for me to play around with things like animation and basic AI simulation.

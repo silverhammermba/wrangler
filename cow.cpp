@@ -1,4 +1,6 @@
+// TODO debug
 #include <iostream>
+
 #include <cmath>
 #include <cstdlib>
 #include <SFML/Graphics.hpp>
@@ -62,9 +64,6 @@ void Cow::think()
 {
 	using namespace std;
 	d = randm<float>(360.f) - 180.f;
-	cerr << "Current direction: " << fmodp(body.getRotation(), 360) << endl
-	     << "New direction: " << d << " = " << fmodp(d - body.getRotation(), 360)
-		 << " local\n";
 }
 
 void Cow::draw(sf::RenderWindow & window)
