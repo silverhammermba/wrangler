@@ -1,6 +1,7 @@
 #ifndef COW_H_
 #define COW_H_
 
+#include <vector>
 #include <SFML/Graphics.hpp>
 
 class Cow
@@ -9,7 +10,9 @@ class Cow
 	sf::RectangleShape head;
 	float d;
 	void setHead(float);
+	std::vector<const Cow *> neighbors;
 public:
+	static const float D_THRESHOLD;
 	static const float BLENGTH;
 	static const float BWIDTH;
 	static const float HLENGTH;
@@ -22,8 +25,10 @@ public:
 	void setPos(const sf::Vector2f &);
 	void setDir(const float);
 	void step(float time = 1);
+	void addCow(const Cow *); // add a nearby cow
+	void resetN(); // reset the cow's neighbor vector
 	void think();
-	void draw(sf::RenderWindow &);
+	void draw(sf::RenderWindow &) const;
 };
 
 #endif

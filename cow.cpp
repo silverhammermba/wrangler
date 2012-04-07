@@ -9,12 +9,13 @@
 
 #define _USE_MATH_DEFINES
 
-const float Cow::BLENGTH = 14;
-const float Cow::BWIDTH = 7;
-const float Cow::HLENGTH = 6;
-const float Cow::HWIDTH = 4;
-const float Cow::SPEED = 20;
-const float Cow::TURN_SPEED = 72;
+const float Cow::D_THRESHOLD = 40; // how far away cows look
+const float Cow::BLENGTH = 14; // body length
+const float Cow::BWIDTH = 7; // body width
+const float Cow::HLENGTH = 6; // head length
+const float Cow::HWIDTH = 4; // head width
+const float Cow::SPEED = 20; // movement speed pixels/second
+const float Cow::TURN_SPEED = 72; // turn speed degrees/second
 
 // set the position of the head, when the cow is facing dir
 void Cow::setHead(float dir)
@@ -30,7 +31,7 @@ Cow::Cow(const sf::Vector2f & pos, const float dir) : body(sf::Vector2f(BLENGTH,
 	d = dir;
 	body.setOrigin(BLENGTH / 2.f, BWIDTH / 2.f);
 	body.setPosition(pos);
-	body.setRotation(dir);
+	body.setRotation(randm<float>(360.f));
 
 	head.setOrigin(1.f, HWIDTH / 2.f);
 	setHead(dir);
@@ -64,13 +65,27 @@ void Cow::step(float time)
 	setHead(dir); // update the head
 }
 
-void Cow::think() // TODO
+void Cow::addCow(const Cow * cow)
+{
+	neighbors.push_back(cow);
+}
+
+void Cow::resetN()
+{
+	neighbors.clear();
+}
+
+void Cow::think()
 {
 	using namespace std;
 	d = randm<float>(360.f) - 180.f;
+	for (const Cow * c : neighbors)
+	{
+		// TODO
+	}
 }
 
-void Cow::draw(sf::RenderWindow & window)
+void Cow::draw(sf::RenderWindow & window) const
 {
 	window.draw(body);
 	window.draw(head);
