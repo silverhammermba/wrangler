@@ -8,8 +8,8 @@
 using std::cerr;
 using std::endl;
 
-const float AI_INTERVAL = 0.5f;
-const float DIST_INTERVAL = 5.f;
+const float AI_INTERVAL = 0.1f;
+const float DIST_INTERVAL = 0.5f;
 
 int main(int argc, char *argv[])
 {
@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
 	for(Cow *cow = cows; cow != cows + COWS; cow++)
 	{
 		cow->setPos(sf::Vector2f(randm<float>(800), randm<float>(600)));
+		//cow->setPos(sf::Vector2f(400, 300));
 		cow->think();
 	}
 
@@ -73,14 +74,29 @@ int main(int argc, char *argv[])
 			for (Cow *cow = cows; cow != cows + COWS; cow++)
 				cow->resetN();
 			
+			float d;
 			for (Cow *cow1 = cows; cow1 != cows + COWS - 1; cow1++)
 			{
 				for (Cow *cow2 = cow1 + 1; cow2 != cows + COWS; cow2++)
 				{
-					if (v2dist(cow1->pos(), cow2->pos()) <= Cow::D_THRESHOLD)
+					d = v2dist(cow1->pos(), cow2->pos());
+					if (d <= Cow::D_THRESHOLD)
 					{
-						cow1->addCow(cow2);
-						cow2->addCow(cow1);
+						if (d <= Cow::BLENGTH / 2.f)
+						{
+							cow1->addCll(cow2);
+							cow2->addCll(cow1);
+						}
+						else if (d <= Cow::D_TOOCLOSE)
+						{
+							cow1->addCrd(cow2);
+							cow2->addCrd(cow1);
+						}
+						else
+						{
+							cow1->addNhb(cow2);
+							cow2->addNhb(cow1);
+						}
 					}
 				}
 			}

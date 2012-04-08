@@ -9,10 +9,14 @@ class Cow
 	sf::RectangleShape body;
 	sf::RectangleShape head;
 	float d;
+	float speed;
 	void setHead(float);
 	std::vector<const Cow *> neighbors;
+	std::vector<const Cow *> crowders;
+	std::vector<const Cow *> colliders;
 public:
 	static const float D_THRESHOLD;
+	static const float D_TOOCLOSE;
 	static const float BLENGTH;
 	static const float BWIDTH;
 	static const float HLENGTH;
@@ -25,7 +29,9 @@ public:
 	void setPos(const sf::Vector2f &);
 	void setDir(const float);
 	void step(float time = 1);
-	void addCow(const Cow *); // add a nearby cow
+	void addNhb(const Cow *); // add a nearby cow
+	void addCrd(const Cow *); // add a cow that's too close
+	void addCll(const Cow *); // add a cow that's colliding
 	void resetN(); // reset the cow's neighbor vector
 	void think();
 	void draw(sf::RenderWindow &) const;
