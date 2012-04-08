@@ -19,14 +19,17 @@ const float Cow::HLENGTH = 7; // head length
 const float Cow::HWIDTH = 4; // head width
 const float Cow::SPEED = 20; // movement speed pixels/second
 const float Cow::TURN_SPEED = 72; // turn speed degrees/second
+const float Cow::HTURN_SPEED = 144; // head turn speed degrees/second
 
 // set the position of the head, when the cow is facing dir
-void Cow::setHead(float dir)
+void Cow::setHead(float dir, float time)
 {
 	head.setPosition(body.getTransform() * sf::Vector2f(BLENGTH, BWIDTH / 2.f));
 	head.setRotation(dir);
 	// TODO kind of stupid and redundant
 	head.rotate(clamp<float>(-60, fmodp(d - body.getRotation(), 360), 60));
+	// TODO get smooth rotation working too
+	//head.rotate(clamp<float>(-HTURN_SPEED, fmodp(d - body.getRotation(), 360), HTURN_SPEED) * time);
 }
 
 Cow::Cow(const sf::Vector2f & pos, const float dir) : body(sf::Vector2f(BLENGTH, BWIDTH)), head(sf::Vector2f(HLENGTH, HWIDTH))
@@ -38,7 +41,7 @@ Cow::Cow(const sf::Vector2f & pos, const float dir) : body(sf::Vector2f(BLENGTH,
 	body.setRotation(randm<float>(360.f));
 
 	head.setOrigin(1.f, HWIDTH / 2.f);
-	setHead(dir);
+	setHead(dir, 1);
 
 	body.setFillColor(sf::Color(237, 224, 177));
 	body.setOutlineColor(sf::Color(0, 0, 0));
@@ -66,7 +69,7 @@ void Cow::step(float time)
 	body.rotate(clamp<float>(-TURN_SPEED, dir, TURN_SPEED) * time);
 	dir = body.getRotation(); // where we ended up facing
 	body.move(speed * time * cos(dir * M_PI / 180), speed * time * sin(dir * M_PI / 180));
-	setHead(dir); // update the head
+	setHead(dir, time); // update the head
 }
 
 void Cow::addNhb(const Cow * cow)
@@ -142,7 +145,7 @@ void Cow::think()
 	else
 	{
 		d += randm<float>(120.f) - 60.f;
-		speed = 0;
+		speed = randm<float>(SPEED);
 	}
 }
 

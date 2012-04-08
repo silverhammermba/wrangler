@@ -10,7 +10,7 @@ class Cow
 	sf::RectangleShape head;
 	float d;
 	float speed;
-	void setHead(float);
+	void setHead(float, float);
 	std::vector<const Cow *> neighbors;
 	std::vector<const Cow *> crowders;
 	std::vector<const Cow *> colliders;
@@ -23,6 +23,7 @@ public:
 	static const float HWIDTH;
 	static const float SPEED;
 	static const float TURN_SPEED;
+	static const float HTURN_SPEED;
 	Cow(const sf::Vector2f & position = sf::Vector2f(0, 0), const float direction = 0);
 	const sf::Vector2f & pos() const { return body.getPosition(); }
 	const float dir() const { return d; }
