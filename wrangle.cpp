@@ -9,7 +9,7 @@ using std::cerr;
 using std::endl;
 
 const float AI_INTERVAL = 0.5f;
-const float DIST_INTERVAL = 5;
+const float DIST_INTERVAL = 5.f;
 
 int main(int argc, char *argv[])
 {
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 	Cow *cows = new Cow[COWS];
 	for(Cow *cow = cows; cow != cows + COWS; cow++)
 	{
-		cow->setPos(sf::Vector2f(400, 300));
+		cow->setPos(sf::Vector2f(randm<float>(800), randm<float>(600)));
 		cow->think();
 	}
 
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 		float time = clock.getElapsedTime().asSeconds();
 		clock.restart();
 
-		if(dist.getElapsedTime().asSeconds() >= DIST_INTERVAL)
+		if (dist.getElapsedTime().asSeconds() >= DIST_INTERVAL)
 		{
 			dist.restart();
 			for (Cow *cow = cows; cow != cows + COWS; cow++)

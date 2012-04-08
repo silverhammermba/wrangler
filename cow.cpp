@@ -78,10 +78,17 @@ void Cow::resetN()
 void Cow::think()
 {
 	using namespace std;
-	d = randm<float>(360.f) - 180.f;
-	for (const Cow * c : neighbors)
+	d += randm<float>(120.f) - 60.f;
+	if(neighbors.size() > 0)
 	{
-		// TODO
+		sf::Vector2f avg (0, 0);
+		for (const Cow * c : neighbors)
+		{
+			avg += c->pos();
+		}
+		avg /= (float)neighbors.size();
+		avg -= body.getPosition();
+		d = atan2(avg.y, avg.x) * 180 / M_PI;
 	}
 }
 
