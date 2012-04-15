@@ -8,7 +8,6 @@ class Cow
 {
 	sf::RectangleShape body;
 	sf::RectangleShape head;
-	float d; // body direction
 	float hd; // head direction
 	float speed;
 	void setHead(float, float);
@@ -28,7 +27,6 @@ public:
 	static const float MAX_FORCE;
 	Cow(const sf::Vector2f & position = sf::Vector2f(0, 0), const float direction = 0);
 	const sf::Vector2f & pos() const { return body.getPosition(); }
-	const float dir() const { return d; }
 	void setPos(const sf::Vector2f &);
 	void setDir(const float);
 	void step(float time = 1);

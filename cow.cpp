@@ -27,7 +27,8 @@ void Cow::setHead(float dir, float time)
 {
 	head.setPosition(body.getTransform() * sf::Vector2f(BLENGTH, BWIDTH / 2.f));
 	head.setRotation(dir);
-	hd += clamp<float>(-HTURN_SPEED, fmodp(d - dir, 360.f), HTURN_SPEED) * time;
+	float d = atan2(steering_direction.y, steering_direction.x) * 180.f / M_PI;
+	hd += clamp<float>(-HTURN_SPEED, fmodp(d, 360.f), HTURN_SPEED) * time;
 	head.rotate(clamp<float>(-60, hd, 60));
 	hd = fmodp(head.getRotation() - dir, 360.f);
 
@@ -39,12 +40,10 @@ void Cow::setHead(float dir, float time)
 
 Cow::Cow(const sf::Vector2f & pos, const float dir) : body(sf::Vector2f(BLENGTH, BWIDTH)), head(sf::Vector2f(HLENGTH, HWIDTH)), velocity(0.f, 0.f), steering_direction(0.f, 0.f)
 {
-	d = dir;
 	hd = 0.f;
 	speed = 0.f;
 	body.setOrigin(BLENGTH / 2.f, BWIDTH / 2.f);
 	body.setPosition(pos);
-	body.setRotation(randm<float>(360.f));
 
 	head.setOrigin(1.f, HWIDTH / 2.f);
 	setHead(dir, 1);
@@ -59,16 +58,12 @@ Cow::Cow(const sf::Vector2f & pos, const float dir) : body(sf::Vector2f(BLENGTH,
 
 	float rad = randm<float>(2 * M_PI);
 	velocity = sf::Vector2f(std::cos(rad), std::sin(rad)) * randm<float>(MAX_SPEED);
+	body.setRotation(rad * 180.f / M_PI);
 }
 
 void Cow::setPos(const sf::Vector2f & pos)
 {
 	body.setPosition(pos);
-}
-
-void Cow::setDir(const float dir)
-{
-	d = dir;
 }
 
 void Cow::step(float time)
@@ -77,6 +72,7 @@ void Cow::step(float time)
 	sf::Vector2f acceleration = steering_force / MASS;
 	velocity = truncate<float>(velocity + acceleration, MAX_SPEED);
 	body.move(velocity * time);
+	body.setRotation(atan2(velocity.y, velocity.x) * 180.f / M_PI);
 
 	// convert the direction to [-180, 180] relative to d
 	//float dir = fmodp(d - body.getRotation(), 360);

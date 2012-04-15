@@ -68,6 +68,7 @@ int main(int argc, char *argv[])
 		float time = clock.getElapsedTime().asSeconds();
 		clock.restart();
 
+		/*
 		if (dist.getElapsedTime().asSeconds() >= DIST_INTERVAL)
 		{
 			dist.restart();
@@ -88,6 +89,7 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
+		*/
 
 		// AI
 		if(ai.getElapsedTime().asSeconds() >= AI_INTERVAL)
