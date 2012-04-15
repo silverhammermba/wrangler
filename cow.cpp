@@ -11,15 +11,16 @@ using std::endl;
 
 #define _USE_MATH_DEFINES
 
-const float Cow::D_THRESHOLD = 80; // how far away cows look
-const float Cow::D_TOOCLOSE = 40; // when a cow is too close
-const float Cow::BLENGTH = 14; // body length
-const float Cow::BWIDTH = 7; // body width
-const float Cow::HLENGTH = 7; // head length
-const float Cow::HWIDTH = 4; // head width
-const float Cow::SPEED = 20; // movement speed pixels/second
-const float Cow::TURN_SPEED = 72; // turn speed degrees/second
-const float Cow::HTURN_SPEED = 144; // head turn speed degrees/second
+const float Cow::D_THRESHOLD = 80.f; // how far away cows look
+const float Cow::BLENGTH = 14.f; // body length
+const float Cow::BWIDTH = 7.f; // body width
+const float Cow::HLENGTH = 7.f; // head length
+const float Cow::HWIDTH = 4.f; // head width
+const float Cow::TURN_SPEED = 72.f; // turn speed degrees/second
+const float Cow::HTURN_SPEED = 144.f; // head turn speed degrees/second
+const float Cow::MASS = 1.f;
+const float Cow::MAX_SPEED = 80.f; // movement speed pixels/second
+const float Cow::MAX_FORCE = 2.f;
 
 // set the position of the head, when the cow is facing dir
 void Cow::setHead(float dir, float time)
@@ -36,7 +37,7 @@ void Cow::setHead(float dir, float time)
 	//head.rotate(clamp<float>(-HTURN_SPEED, fmodp(d - body.getRotation(), 360), HTURN_SPEED) * time);
 }
 
-Cow::Cow(const sf::Vector2f & pos, const float dir) : body(sf::Vector2f(BLENGTH, BWIDTH)), head(sf::Vector2f(HLENGTH, HWIDTH))
+Cow::Cow(const sf::Vector2f & pos, const float dir) : body(sf::Vector2f(BLENGTH, BWIDTH)), head(sf::Vector2f(HLENGTH, HWIDTH)), velocity(0.f, 0.f), steering_direction(0.f, 0.f)
 {
 	d = dir;
 	hd = 0.f;
@@ -55,6 +56,9 @@ Cow::Cow(const sf::Vector2f & pos, const float dir) : body(sf::Vector2f(BLENGTH,
 	head.setFillColor(sf::Color(237, 224, 177));
 	head.setOutlineColor(sf::Color(0, 0, 0));
 	head.setOutlineThickness(1);
+
+	float rad = randm<float>(2 * M_PI);
+	velocity = sf::Vector2f(std::cos(rad), std::sin(rad)) * randm<float>(MAX_SPEED);
 }
 
 void Cow::setPos(const sf::Vector2f & pos)
@@ -69,12 +73,17 @@ void Cow::setDir(const float dir)
 
 void Cow::step(float time)
 {
+	sf::Vector2f steering_force = truncate<float>(steering_direction, MAX_FORCE);
+	sf::Vector2f acceleration = steering_force / MASS;
+	velocity = truncate<float>(velocity + acceleration, MAX_SPEED);
+	body.move(velocity * time);
+
 	// convert the direction to [-180, 180] relative to d
-	float dir = fmodp(d - body.getRotation(), 360);
-	body.rotate(clamp<float>(-TURN_SPEED, dir, TURN_SPEED) * time);
-	dir = body.getRotation(); // where we ended up facing
-	body.move(speed * time * cos(dir * M_PI / 180), speed * time * sin(dir * M_PI / 180));
-	setHead(dir, time); // update the head
+	//float dir = fmodp(d - body.getRotation(), 360);
+	//body.rotate(clamp<float>(-TURN_SPEED, dir, TURN_SPEED) * time);
+	//dir = body.getRotation(); // where we ended up facing
+	//body.move(speed * time * cos(dir * M_PI / 180), speed * time * sin(dir * M_PI / 180));
+	setHead(body.getRotation(), time); // update the head
 }
 
 void Cow::addCow(const Cow * cow)
@@ -87,10 +96,9 @@ void Cow::resetN()
 	neighbors.clear();
 }
 
-void Cow::think()
+void Cow::think(sf::Vector2f dir)
 {
-	d += randm<float>(120.f) - 60.f;
-	speed = randm<float>(SPEED);
+	steering_direction = dir - body.getPosition();
 }
 
 void Cow::draw(sf::RenderWindow & window) const

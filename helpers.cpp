@@ -9,4 +9,3 @@ float fmodp(float n, float d)
 	if(2 * n < -d) n += d;
 	return n;
 }
-

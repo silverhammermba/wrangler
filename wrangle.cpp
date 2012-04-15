@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 	{
 		cow->setPos(sf::Vector2f(randm<float>(800), randm<float>(600)));
 		//cow->setPos(sf::Vector2f(400, 300));
-		cow->think();
+		cow->think(sf::Vector2f(400.f, 300.f));
 	}
 
 	// game loop
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 		{
 			ai.restart();
 			for(Cow *cow = cows; cow != cows + COWS; cow++)
-				cow->think();
+				cow->think(sf::Vector2f(400.f, 300.f));
 			// TODO get a proper clock for this
 			fps_s.str("");
 			fps_s << "FPS " << int (1.f / time);
