@@ -82,21 +82,8 @@ int main(int argc, char *argv[])
 					d = v2dist(cow1->pos(), cow2->pos());
 					if (d <= Cow::D_THRESHOLD)
 					{
-						if (d <= Cow::BLENGTH / 2.f)
-						{
-							cow1->addCll(cow2);
-							cow2->addCll(cow1);
-						}
-						else if (d <= Cow::D_TOOCLOSE)
-						{
-							cow1->addCrd(cow2);
-							cow2->addCrd(cow1);
-						}
-						else
-						{
-							cow1->addNhb(cow2);
-							cow2->addNhb(cow1);
-						}
+						cow1->addCow(cow2);
+						cow2->addCow(cow1);
 					}
 				}
 			}
@@ -110,7 +97,7 @@ int main(int argc, char *argv[])
 				cow->think();
 			// TODO get a proper clock for this
 			fps_s.str("");
-			fps_s << 1.f / time << " FPS";
+			fps_s << "FPS " << int (1.f / time);
 			fps.setString(fps_s.str());
 		}
 

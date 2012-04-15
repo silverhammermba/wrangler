@@ -26,8 +26,12 @@ void Cow::setHead(float dir, float time)
 {
 	head.setPosition(body.getTransform() * sf::Vector2f(BLENGTH, BWIDTH / 2.f));
 	head.setRotation(dir);
+	hd += clamp<float>(-HTURN_SPEED, fmodp(d - dir, 360.f), HTURN_SPEED) * time;
+	head.rotate(clamp<float>(-60, hd, 60));
+	hd = fmodp(head.getRotation() - dir, 360.f);
+
 	// TODO kind of stupid and redundant
-	head.rotate(clamp<float>(-60, fmodp(d - body.getRotation(), 360), 60));
+	//head.rotate(clamp<float>(-60, fmodp(d - body.getRotation(), 360), 60));
 	// TODO get smooth rotation working too
 	//head.rotate(clamp<float>(-HTURN_SPEED, fmodp(d - body.getRotation(), 360), HTURN_SPEED) * time);
 }
@@ -35,6 +39,7 @@ void Cow::setHead(float dir, float time)
 Cow::Cow(const sf::Vector2f & pos, const float dir) : body(sf::Vector2f(BLENGTH, BWIDTH)), head(sf::Vector2f(HLENGTH, HWIDTH))
 {
 	d = dir;
+	hd = 0.f;
 	speed = 0.f;
 	body.setOrigin(BLENGTH / 2.f, BWIDTH / 2.f);
 	body.setPosition(pos);
@@ -72,81 +77,20 @@ void Cow::step(float time)
 	setHead(dir, time); // update the head
 }
 
-void Cow::addNhb(const Cow * cow)
+void Cow::addCow(const Cow * cow)
 {
 	neighbors.push_back(cow);
-}
-
-void Cow::addCrd(const Cow * cow)
-{
-	crowders.push_back(cow);
-}
-
-void Cow::addCll(const Cow * cow)
-{
-	colliders.push_back(cow);
 }
 
 void Cow::resetN()
 {
 	neighbors.clear();
-	crowders.clear();
-	colliders.clear();
 }
 
 void Cow::think()
 {
-	using namespace std;
-	if (colliders.size() > 0)
-	{
-		sf::Vector2f repl (0, 0);
-		if (colliders.size() > 0)
-		{
-			for (const Cow * c : colliders)
-			{
-				repl += c->pos();
-			}
-			repl /= (float)colliders.size();
-			repl -= body.getPosition();
-			repl *= -1.f;
-		}
-		d = atan2(repl.y, repl.x) * 180.f / M_PI;
-		speed = SPEED; //clamp<float>(0.f, v2dist(repl, sf::Vector2f(0, 0)), SPEED);
-	}
-	else if (neighbors.size() > 0 || crowders.size() > 0)
-	{
-		sf::Vector2f attr (0, 0);
-		if (neighbors.size() > 0)
-		{
-			for (const Cow * c : neighbors)
-			{
-				attr += c->pos();
-			}
-			attr /= (float)neighbors.size();
-			attr -= body.getPosition();
-		}
-		sf::Vector2f repl (0, 0);
-		if (crowders.size() > 0)
-		{
-			//cerr << "Cow " << this << "crowded\n";
-			for (const Cow * c : crowders)
-			{
-				//cerr << "  " << c << endl;
-				repl += c->pos();
-			}
-			repl /= (float)crowders.size();
-			repl -= body.getPosition();
-			repl *= -2.f;
-			//cerr << "going " << (atan2(-1.f * repl.y, -1.f * -repl.x) * 180.f / M_PI) << endl;
-		}
-		d = atan2(attr.y + repl.y, attr.x + repl.x) * 180.f / M_PI;
-		speed = clamp<float>(0.f, v2dist(attr + repl, sf::Vector2f(0, 0)), SPEED);
-	}
-	else
-	{
-		d += randm<float>(120.f) - 60.f;
-		speed = randm<float>(SPEED);
-	}
+	d += randm<float>(120.f) - 60.f;
+	speed = randm<float>(SPEED);
 }
 
 void Cow::draw(sf::RenderWindow & window) const
