@@ -24,7 +24,9 @@ public:
 	static const float HTURN_SPEED;
 	static const float MAX_SPEED;
 	static const float MASS;
-	static const float MAX_FORCE;
+	static const float MAX_FORWARD_FORCE;
+	static const float MAX_LATERAL_FORCE;
+	static const float MAX_REVERSE_FORCE;
 	Cow(const sf::Vector2f & position = sf::Vector2f(0, 0), const float direction = 0);
 	const sf::Vector2f & pos() const { return body.getPosition(); }
 	void setPos(const sf::Vector2f &);

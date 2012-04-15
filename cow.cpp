@@ -20,7 +20,9 @@ const float Cow::TURN_SPEED = 72.f; // turn speed degrees/second
 const float Cow::HTURN_SPEED = 144.f; // head turn speed degrees/second
 const float Cow::MASS = 1.f;
 const float Cow::MAX_SPEED = 80.f; // movement speed pixels/second
-const float Cow::MAX_FORCE = 2.f;
+const float Cow::MAX_FORWARD_FORCE = 2.f;
+const float Cow::MAX_LATERAL_FORCE = 1.f;
+const float Cow::MAX_REVERSE_FORCE = 0.5f;
 
 // set the position of the head, when the cow is facing dir
 void Cow::setHead(float dir, float time)
@@ -68,11 +70,28 @@ void Cow::setPos(const sf::Vector2f & pos)
 
 void Cow::step(float time)
 {
-	sf::Vector2f steering_force = truncate<float>(steering_direction, MAX_FORCE);
+	float theta = body.getRotation() * M_PI / 180.f;
+	float a = steering_direction.y * std::sin(theta) + steering_direction.x * std::cos(theta);
+	float b = -steering_direction.x * std::sin(theta) + steering_direction.y * std::cos(theta);
+	if (a > MAX_FORWARD_FORCE)
+		a = MAX_FORWARD_FORCE;
+	else if (a < -MAX_REVERSE_FORCE)
+		a = -MAX_REVERSE_FORCE;
+	if (b > MAX_LATERAL_FORCE)
+		b = MAX_LATERAL_FORCE;
+	else if (b < -MAX_LATERAL_FORCE)
+		b = -MAX_LATERAL_FORCE;
+	//std::cerr << steering_direction.x << " " << steering_direction.y << std::endl;
+	sf::Vector2f steering_force (a * std::cos(theta) - b * std::sin(theta), a * std::sin(theta) + b * std::cos(theta));
+	//std::cerr << steering_force.x << " " << steering_force.y << std::endl;
+	//sf::Vector2f basisX (std::cos(theta), std::sin(theta));
+	//sf::Vector2f basisY (std::cos((theta + 90.f) * M_PI / 180.f), std::sin((theta + 90.f) * M_PI / 180.f));
+	//sf::Vector2f steering_force = truncate<float>(steering_direction, MAX_FORCE);
 	sf::Vector2f acceleration = steering_force / MASS;
 	velocity = truncate<float>(velocity + acceleration, MAX_SPEED);
 	body.move(velocity * time);
 	body.setRotation(atan2(velocity.y, velocity.x) * 180.f / M_PI);
+	//std::cin.get();
 
 	// convert the direction to [-180, 180] relative to d
 	//float dir = fmodp(d - body.getRotation(), 360);
