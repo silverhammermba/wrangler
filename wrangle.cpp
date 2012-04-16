@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 			cow->step(time);
 
 		// draw everything
-		window.clear(sf::Color(46, 196, 255));
+		window.clear(sf::Color(61, 201, 56));
 
 		for(Cow *cow = cows; cow != cows + COWS; cow++)
 			cow->draw(window);

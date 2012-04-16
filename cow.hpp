@@ -20,7 +20,6 @@ public:
 	static const float BWIDTH;
 	static const float HLENGTH;
 	static const float HWIDTH;
-	static const float TURN_SPEED;
 	static const float HTURN_SPEED;
 	static const float MAX_SPEED;
 	static const float MASS;
