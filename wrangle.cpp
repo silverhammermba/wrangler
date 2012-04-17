@@ -44,7 +44,9 @@ int main(int argc, char *argv[])
 		cow->setPos(sf::Vector2f(randm<float>(800), randm<float>(600)));
 		//cow->setPos(sf::Vector2f(400, 300));
 		cow->think(sf::Vector2f(400.f, 300.f));
+		cow->debug = true;
 	}
+
 
 	// game loop
 	while (window.isOpen())
@@ -68,35 +70,11 @@ int main(int argc, char *argv[])
 		float time = clock.getElapsedTime().asSeconds();
 		clock.restart();
 
-		/*
-		if (dist.getElapsedTime().asSeconds() >= DIST_INTERVAL)
-		{
-			dist.restart();
-			for (Cow *cow = cows; cow != cows + COWS; cow++)
-				cow->resetN();
-			
-			float d;
-			for (Cow *cow1 = cows; cow1 != cows + COWS - 1; cow1++)
-			{
-				for (Cow *cow2 = cow1 + 1; cow2 != cows + COWS; cow2++)
-				{
-					d = v2dist(cow1->pos(), cow2->pos());
-					if (d <= Cow::D_THRESHOLD)
-					{
-						cow1->addCow(cow2);
-						cow2->addCow(cow1);
-					}
-				}
-			}
-		}
-		*/
-
 		// AI
 		if(ai.getElapsedTime().asSeconds() >= AI_INTERVAL)
 		{
 			ai.restart();
-			for(Cow *cow = cows; cow != cows + COWS; cow++)
-				cow->think(sf::Vector2f(400.f, 300.f));
+			cows[0].think(cows[1]);
 			// TODO get a proper clock for this
 			fps_s.str("");
 			fps_s << "FPS " << int (1.f / time);

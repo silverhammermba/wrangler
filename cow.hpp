@@ -8,6 +8,9 @@ class Cow
 {
 	sf::RectangleShape body;
 	sf::RectangleShape head;
+	sf::RectangleShape dbg_vel;
+	sf::RectangleShape dbg_dir;
+	sf::RectangleShape dbg_str;
 	float hd; // head direction
 	float speed;
 	void setHead(float, float);
@@ -26,6 +29,7 @@ public:
 	static const float MAX_FORWARD_FORCE;
 	static const float MAX_LATERAL_FORCE;
 	static const float MAX_REVERSE_FORCE;
+	bool debug;
 	Cow(const sf::Vector2f & position = sf::Vector2f(0, 0), const float direction = 0);
 	const sf::Vector2f & pos() const { return body.getPosition(); }
 	void setPos(const sf::Vector2f &);
@@ -33,7 +37,7 @@ public:
 	void step(float time = 1);
 	void addCow(const Cow *); // add a nearby cow
 	void resetN(); // reset the cow's neighbor vector
-	void think(sf::Vector2f);
+	void think(const Cow &);
 	void draw(sf::RenderWindow &) const;
 };
 
