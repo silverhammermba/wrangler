@@ -42,13 +42,18 @@ public:
 	bool debug;
 	explicit Cow(const sf::Vector2f & position = sf::Vector2f(0, 0), const float direction = 0);
 	const sf::Vector2f & pos() const { return body.getPosition(); }
+	const float dir() const { return body.getRotation(); }
 	const sf::Vector2f & vel() const { return velocity; }
+	const sf::Vector2f & str() const { return steering_direction; }
+	void setColor(const sf::Color &);
 	void setPos(const sf::Vector2f &);
 	void setDir(const float);
 	void step(float time = 1);
 	void addCow(const Cow *); // add a nearby cow
 	void resetN(); // reset the cow's neighbor vector
 	void draw(sf::RenderWindow &) const;
+	sf::Vector2f predict_pos(const Cow & cow) const;
+	// steering behaviors
 	void pursue(const Cow & cow);
 	void flee(const Cow & cow);
 	void move_to(const sf::Vector2f & pos);

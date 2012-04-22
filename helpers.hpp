@@ -8,6 +8,9 @@
 // like fmod, but returns a number in [-d/2,d/2]
 float fmodp(float n, float d);
 
+float rad2deg(float rad);
+float deg2rad(float deg);
+
 // constrain x to [lb, ub]
 template <class T>
 T clamp(T lb, T x, T ub)
@@ -40,7 +43,7 @@ float v2dot(sf::Vector2<T> v1, sf::Vector2<T> v2)
 template <class T>
 float v2angle(sf::Vector2<T> v1, sf::Vector2<T> v2)
 {
-	return acos(v2dot(v1, v2) / (v2mag(v1) * v2mag(v2))) * 180.f / M_PI;
+	return rad2deg(acos(v2dot(v1, v2) / (v2mag(v1) * v2mag(v2))));
 }
 
 // find distance between two points as sf::Vector2<T>

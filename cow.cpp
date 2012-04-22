@@ -48,9 +48,20 @@ Cow::Cow(const sf::Vector2f & pos, const float dir) :
 	dbg_str.setFillColor(sf::Color(255, 0, 255));
 	dbg_dir.setFillColor(sf::Color(0, 0, 255));
 
-	float rad = randm<float>(2 * M_PI);
+	setDir(randm<float>(360.f));
+}
+
+void Cow::setColor(const sf::Color & color)
+{
+	body.setFillColor(color);
+	head.setFillColor(color);
+}
+
+void Cow::setDir(const float deg)
+{
+	float rad = deg2rad(deg);
 	velocity = sf::Vector2f(std::cos(rad), std::sin(rad)) * randm<float>(MAX_SPEED);
-	body.setRotation(rad * 180.f / M_PI);
+	body.setRotation(deg);
 }
 
 // set the position of the head, when the cow is facing dir
@@ -59,7 +70,7 @@ void Cow::setHead(float dir, float time)
 	// TODO refactor
 	head.setPosition(body.getTransform() * sf::Vector2f(BLENGTH, BWIDTH / 2.f));
 	head.setRotation(dir + hd);
-	float d = atan2(steering_direction.y - body.getPosition().y, steering_direction.x - body.getPosition().x) * 180.f / M_PI;
+	float d = rad2deg(atan2(steering_direction.y - body.getPosition().y, steering_direction.x - body.getPosition().x));
 	head.rotate(clamp<float>(-HTURN_SPEED, fmodp(d - dir - hd, 360.f), HTURN_SPEED) * time);
 	hd = clamp<float>(-65.f, fmodp(head.getRotation() - dir, 360.f), 65.f);
 
@@ -74,7 +85,7 @@ void Cow::step(float time)
 {
 	(this->*think)();
 	// TODO make sure I didn't screw something up by making steering direction absolute
-	float theta = body.getRotation() * M_PI / 180.f;
+	float theta = deg2rad(body.getRotation());
 
 	sf::Vector2f steering = steering_direction - body.getPosition();
 
@@ -82,7 +93,7 @@ void Cow::step(float time)
 	{
 		dbg_dir.setSize(sf::Vector2f(std::sqrt(steering.x * steering.x + steering.y * steering.y), 1.f));
 		dbg_dir.setPosition(body.getPosition());
-		dbg_dir.setRotation(std::atan2(steering.y, steering.x) * 180.f / M_PI);
+		dbg_dir.setRotation(rad2deg(std::atan2(steering.y, steering.x)));
 	}
 
 	// find local components of steering direction
@@ -112,11 +123,11 @@ void Cow::step(float time)
 		dbg_vel.setRotation(body.getRotation());
 		dbg_str.setSize(sf::Vector2f(std::sqrt(steering.x * steering.x + steering.y * steering.y) * 20, 1.f));
 		dbg_str.setPosition(body.getPosition());
-		dbg_str.setRotation(std::atan2(steering.y, steering.x) * 180.f / M_PI);
+		dbg_str.setRotation(rad2deg(std::atan2(steering.y, steering.x)));
 	}
 
 	// update body, head orientation
-	body.setRotation(atan2(velocity.y, velocity.x) * 180.f / M_PI);
+	body.setRotation(rad2deg(atan2(velocity.y, velocity.x)));
 	setHead(body.getRotation(), time); // update the head
 }
 
@@ -151,7 +162,20 @@ void Cow::pursue(const Cow & cow)
 
 void Cow::pursue_f()
 {
-	steering_direction = (target.cow->vel() * v2dist(pos(), target.cow->pos()) / v2mag(velocity)) + target.cow->pos();
+	if (std::abs(v2angle(target.cow->pos() - pos(), target.cow->velocity)) > 135.f)
+	{
+		steering_direction = target.cow->pos();
+		
+	}
+	else
+	{
+		steering_direction = predict_pos(*target.cow);
+	}
+}
+
+sf::Vector2f Cow::predict_pos(const Cow & cow) const
+{
+	return (cow.vel() * v2dist(pos(), cow.pos()) / v2mag(velocity)) + cow.pos();
 }
 
 void Cow::flee(const Cow & cow)
