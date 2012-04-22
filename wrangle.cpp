@@ -44,15 +44,13 @@ int main(int argc, char *argv[])
 	{
 		cow->setPos(sf::Vector2f(randm<float>(800), randm<float>(600)));
 		//cow->setPos(sf::Vector2f(400, 300));
-		cow->debug = true;
 	}
 
-	cows[2].setPos(sf::Vector2f(400.f, 300.f));
+	cows[1].setPos(sf::Vector2f(400.f, 300.f));
 
 	cows[0].move_to(sf::Vector2f(400.f, 300.f));
-	cows[1].pursue(cows[0]);
-	cows[2].flee(cows[1]);
-
+	cows[1].flee(cows[2]);
+	cows[2].pursue(cows[0]);
 
 	// game loop
 	while (window.isOpen())
@@ -70,6 +68,22 @@ int main(int argc, char *argv[])
 				view.setSize(sf::Vector2f(event.size.width, event.size.height));
 				window.setView(view);
 				fps.setPosition(view.getCenter() - view.getSize() / 2.f);
+			}
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+		{
+			for(Cow *cow = cows; cow != cows + COWS; cow++)
+			{
+				cow->setPos(sf::Vector2f(randm<float>(800), randm<float>(600)));
+			}
+			cows[1].setPos(sf::Vector2f(400.f, 300.f));
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		{
+			for(Cow *cow = cows; cow != cows + COWS; cow++)
+			{
+				cow->debug = !(cow->debug);
 			}
 		}
 
