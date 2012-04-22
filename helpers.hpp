@@ -29,6 +29,20 @@ float v2mag(sf::Vector2<T> v)
 	return std::sqrt(v.x * v.x + v.y * v.y);
 }
 
+// find the dot product of two vectors
+template <class T>
+float v2dot(sf::Vector2<T> v1, sf::Vector2<T> v2)
+{
+	return v1.x * v2.x + v1.y * v2.y;
+}
+
+// find the angle between two vectors
+template <class T>
+float v2angle(sf::Vector2<T> v1, sf::Vector2<T> v2)
+{
+	return acos(v2dot(v1, v2) / (v2mag(v1) * v2mag(v2))) * 180.f / M_PI;
+}
+
 // find distance between two points as sf::Vector2<T>
 template <class T>
 float v2dist(sf::Vector2<T> v1, sf::Vector2<T> v2)

@@ -18,6 +18,7 @@ const float Cow::HLENGTH = 7.f; // head length
 const float Cow::HWIDTH = 4.f; // head width
 const float Cow::HTURN_SPEED = 144.f; // head turn speed degrees/second
 const float Cow::MASS = 1.f;
+const float Cow::SLOW_DISTANCE = 30.f; // distance at which cows start slowing down
 const float Cow::MAX_SPEED = 50.f; // movement speed pixels/second
 const float Cow::MAX_FORWARD_FORCE = 1.5f;
 const float Cow::MAX_LATERAL_FORCE = 1.f;
@@ -95,7 +96,12 @@ void Cow::step(float time)
 	// convert force to new velocity and move the cow
 	steering = sf::Vector2f(a * std::cos(theta) - b * std::sin(theta), a * std::sin(theta) + b * std::cos(theta));
 	steering /= MASS; // force to acceleration
-	velocity = truncate<float>(velocity + steering, MAX_SPEED);
+
+	float distance = v2dist(pos(), steering_direction);
+	float ramped_speed = MAX_SPEED * (distance / SLOW_DISTANCE);
+	float clipped_speed = std::min(ramped_speed, MAX_SPEED);
+
+	velocity = truncate<float>(velocity + steering, clipped_speed);
 	body.move(velocity * time);
 
 	// update debug lines

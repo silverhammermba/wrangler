@@ -35,6 +35,7 @@ public:
 	static const float HTURN_SPEED;
 	static const float MAX_SPEED;
 	static const float MASS;
+	static const float SLOW_DISTANCE;
 	static const float MAX_FORWARD_FORCE;
 	static const float MAX_LATERAL_FORCE;
 	static const float MAX_REVERSE_FORCE;
