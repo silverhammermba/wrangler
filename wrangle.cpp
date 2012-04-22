@@ -14,7 +14,7 @@ const float DIST_INTERVAL = 0.5f;
 int main(int argc, char *argv[])
 {
 	// parse command line
-	const int COWS = (argc == 2 ? atoi(argv[1]) : 1);
+	int COWS = (argc == 2 ? atoi(argv[1]) : 1);
 
 	// create objects
 	srand((unsigned)time(0));
@@ -38,14 +38,20 @@ int main(int argc, char *argv[])
 	sf::View view (window.getView());
 
 	// set up the cows TODO would be nice to move this to the contstructor
+	COWS = 3;
 	Cow *cows = new Cow[COWS];
 	for(Cow *cow = cows; cow != cows + COWS; cow++)
 	{
 		cow->setPos(sf::Vector2f(randm<float>(800), randm<float>(600)));
 		//cow->setPos(sf::Vector2f(400, 300));
-		cow->think(sf::Vector2f(400.f, 300.f));
 		cow->debug = true;
 	}
+
+	cows[2].setPos(sf::Vector2f(400.f, 300.f));
+
+	cows[0].move_to(sf::Vector2f(400.f, 300.f));
+	cows[1].pursue(cows[0]);
+	cows[2].flee(cows[1]);
 
 
 	// game loop
@@ -74,7 +80,6 @@ int main(int argc, char *argv[])
 		if(ai.getElapsedTime().asSeconds() >= AI_INTERVAL)
 		{
 			ai.restart();
-			cows[0].think(cows[1]);
 			// TODO get a proper clock for this
 			fps_s.str("");
 			fps_s << "FPS " << int (1.f / time);

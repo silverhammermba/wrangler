@@ -71,6 +71,7 @@ void Cow::setPos(const sf::Vector2f & pos)
 
 void Cow::step(float time)
 {
+	(this->*think)();
 	// TODO make sure I didn't screw something up by making steering direction absolute
 	float theta = body.getRotation() * M_PI / 180.f;
 
@@ -123,12 +124,6 @@ void Cow::resetN()
 	neighbors.clear();
 }
 
-// currently just converts absolute position vector to relative direction
-void Cow::think(const Cow & c)
-{
-	steering_direction = c.pos();
-}
-
 void Cow::draw(sf::RenderWindow & window) const
 {
 	window.draw(body);
@@ -141,3 +136,34 @@ void Cow::draw(sf::RenderWindow & window) const
 		window.draw(dbg_str);
 	}
 }
+
+void Cow::pursue(const Cow & cow)
+{
+	target.cow = &cow;
+	think = &Cow::pursue_f;
+}
+
+void Cow::pursue_f()
+{
+	steering_direction = target.cow->pos();
+}
+
+void Cow::flee(const Cow & cow)
+{
+	target.cow = &cow;
+	think = &Cow::flee_f;
+}
+
+void Cow::flee_f()
+{
+	steering_direction = 2.f * body.getPosition() - (target.cow->pos());
+}
+
+void Cow::move_to(const sf::Vector2f & pos)
+{
+	target.pos = &pos;
+	steering_direction = pos;
+	think = &Cow::move_to_f;
+}
+
+void Cow::move_to_f() {}
