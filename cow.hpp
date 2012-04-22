@@ -41,6 +41,7 @@ public:
 	bool debug;
 	explicit Cow(const sf::Vector2f & position = sf::Vector2f(0, 0), const float direction = 0);
 	const sf::Vector2f & pos() const { return body.getPosition(); }
+	const sf::Vector2f & vel() const { return velocity; }
 	void setPos(const sf::Vector2f &);
 	void setDir(const float);
 	void step(float time = 1);

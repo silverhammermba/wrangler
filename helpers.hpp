@@ -22,6 +22,13 @@ T randm(T max)
 	return (T)(max * ((float)rand() / (float)RAND_MAX));
 }
 
+// find magnitde of sf::Vector2<T>
+template <class T>
+float v2mag(sf::Vector2<T> v)
+{
+	return std::sqrt(v.x * v.x + v.y * v.y);
+}
+
 // find distance between two points as sf::Vector2<T>
 template <class T>
 float v2dist(sf::Vector2<T> v1, sf::Vector2<T> v2)
@@ -33,7 +40,7 @@ float v2dist(sf::Vector2<T> v1, sf::Vector2<T> v2)
 template <class T>
 sf::Vector2<T> truncate(sf::Vector2<T> v, T max)
 {
-	T mag = std::sqrt(v.x * v.x + v.y * v.y);
+	T mag = v2mag(v);
 	if (mag > max)
 		return v * max / mag;
 	else

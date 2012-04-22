@@ -145,7 +145,7 @@ void Cow::pursue(const Cow & cow)
 
 void Cow::pursue_f()
 {
-	steering_direction = target.cow->pos();
+	steering_direction = (target.cow->vel() * v2dist(pos(), target.cow->pos()) / v2mag(velocity)) + target.cow->pos();
 }
 
 void Cow::flee(const Cow & cow)
@@ -156,7 +156,8 @@ void Cow::flee(const Cow & cow)
 
 void Cow::flee_f()
 {
-	steering_direction = 2.f * body.getPosition() - (target.cow->pos());
+	pursue_f();
+	steering_direction = 2.f * body.getPosition() - steering_direction;
 }
 
 void Cow::move_to(const sf::Vector2f & pos)
