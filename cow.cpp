@@ -36,11 +36,11 @@ Cow::Cow(const sf::Vector2f & pos, const float dir) :
 	head.setOrigin(1.f, HWIDTH / 2.f);
 	setHead(dir, 1);
 
-	body.setFillColor(sf::Color(237, 224, 177));
+	setColor(sf::Color(237, 224, 177));
+
 	body.setOutlineColor(sf::Color(186, 186, 186));
 	body.setOutlineThickness(1);
 
-	head.setFillColor(sf::Color(237, 224, 177));
 	head.setOutlineColor(sf::Color(186, 186, 186));
 	head.setOutlineThickness(1);
 
@@ -51,8 +51,9 @@ Cow::Cow(const sf::Vector2f & pos, const float dir) :
 	setDir(randm<float>(360.f));
 }
 
-void Cow::setColor(const sf::Color & color)
+void Cow::setColor(const sf::Color & clr)
 {
+	color = clr;
 	body.setFillColor(color);
 	head.setFillColor(color);
 }
@@ -165,11 +166,12 @@ void Cow::pursue_f()
 	if (std::abs(v2angle(target.cow->pos() - pos(), target.cow->velocity)) > 135.f)
 	{
 		steering_direction = target.cow->pos();
-		
+		if (debug) body.setFillColor(sf::Color(255.f, 0.f, 0.f));
 	}
 	else
 	{
 		steering_direction = predict_pos(*target.cow);
+		if (debug) setColor(color);
 	}
 }
 

@@ -43,7 +43,7 @@ float v2dot(sf::Vector2<T> v1, sf::Vector2<T> v2)
 template <class T>
 float v2angle(sf::Vector2<T> v1, sf::Vector2<T> v2)
 {
-	return rad2deg(acos(v2dot(v1, v2) / (v2mag(v1) * v2mag(v2))));
+	return rad2deg(acos(clamp<double>(-1, v2dot(v1, v2) / (v2mag(v1) * v2mag(v2)), 1)));
 }
 
 // find distance between two points as sf::Vector2<T>

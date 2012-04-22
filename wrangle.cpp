@@ -78,10 +78,6 @@ int main(int argc, char *argv[])
 				{
 					cow->setPos(sf::Vector2f(randm<float>(800), randm<float>(600)));
 				}
-				cows[1].setPos(sf::Vector2f(200.f, 300.f));
-				cows[1].setDir(0.f);
-				cows[2].setPos(sf::Vector2f(600.f, 300.f));
-				cows[2].setDir(180.f);
 			}
 			else if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::D))
 			{
@@ -140,19 +136,6 @@ int main(int argc, char *argv[])
 			// update entities
 			for(Cow *cow = cows; cow != cows + COWS; cow++)
 				cow->step(time);
-			// TODO twitch detection
-			for(Cow *cw = cows; cw != cows + COWS; cw++)
-				if (v2mag(cw->vel()) < 2.f)
-				{
-					for(Cow *cow = cows; cow != cows + COWS; cow++)
-					{
-						cerr << "Cow " << cow << endl;
-						cerr << "  Vel " << cow->vel().x << " " << cow->vel().y << endl;
-						cerr << "  Str " << cow->str().x << " " << cow->str().y << endl;
-						cerr << "  Pos " << cow->pos().x << " " << cow->pos().y << endl;
-					}
-					unpaused = false;
-				}
 		}
 
 			// draw everything

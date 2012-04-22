@@ -16,6 +16,7 @@ class Cow
 	void setHead(float, float);
 	sf::Vector2f velocity;
 	sf::Vector2f steering_direction;
+	sf::Color color;
 	std::vector<const Cow *> neighbors;
 	void (Cow::*think)(void);
 	union target_t
