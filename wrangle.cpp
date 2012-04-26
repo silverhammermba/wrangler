@@ -27,6 +27,10 @@ int main(int argc, char *argv[])
 	fps.setCharacterSize(12);
 	std::ostringstream fps_s;
 
+	sf::Text debug;
+	debug.setCharacterSize(12);
+	debug.setPosition(20.f, 20.f);
+
 	sf::RenderWindow window
 	{
 		sf::VideoMode(800, 600, 32),
@@ -53,7 +57,7 @@ int main(int argc, char *argv[])
 	cows[1].setPos(sf::Vector2f(400.f, 300.f));
 
 	//cows[0].move_to(sf::Vector2f(400.f, 300.f));
-	cows[0].pursue(cows[2]);
+	cows[0].wander();
 	cows[1].flee(cows[2]);
 	cows[2].pursue(cows[1]);
 
@@ -128,6 +132,7 @@ int main(int argc, char *argv[])
 			fps_s.str("");
 			fps_s << "FPS " << int (1.f / time);
 			fps.setString(fps_s.str());
+			debug.setString(cows[0].debug_s.str() + "," + cows[1].debug_s.str() + "," + cows[2].debug_s.str());
 		}
 
 
@@ -145,6 +150,7 @@ int main(int argc, char *argv[])
 				cow->draw(window);
 
 			window.draw(fps);
+			window.draw(debug);
 
 			window.display();
 	}

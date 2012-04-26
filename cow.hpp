@@ -2,6 +2,7 @@
 #define COW_H_
 
 #include <vector>
+#include <sstream> // TODO DEBUG
 #include <SFML/Graphics.hpp>
 
 class Cow
@@ -26,8 +27,10 @@ class Cow
 	} target;
 	void pursue_f();
 	void flee_f();
+	void wander_f();
 	void move_to_f();
 public:
+	std::ostringstream debug_s; // TODO DEBUG
 	static const float D_THRESHOLD;
 	static const float BLENGTH;
 	static const float BWIDTH;
@@ -37,6 +40,7 @@ public:
 	static const float MAX_SPEED;
 	static const float MASS;
 	static const float SLOW_DISTANCE;
+	static const float MAX_THREAT_DIST;
 	static const float MAX_FORWARD_FORCE;
 	static const float MAX_LATERAL_FORCE;
 	static const float MAX_REVERSE_FORCE;
@@ -57,6 +61,7 @@ public:
 	// steering behaviors
 	void pursue(const Cow & cow);
 	void flee(const Cow & cow);
+	void wander();
 	void move_to(const sf::Vector2f & pos);
 };
 

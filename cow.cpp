@@ -18,6 +18,7 @@ const float Cow::HLENGTH = 7.f; // head length
 const float Cow::HWIDTH = 4.f; // head width
 const float Cow::HTURN_SPEED = 144.f; // head turn speed degrees/second
 const float Cow::MASS = 1.f;
+const float Cow::MAX_THREAT_DIST = 200.f; // distance at which cows consider threads
 const float Cow::SLOW_DISTANCE = 30.f; // distance at which cows start slowing down
 const float Cow::MAX_SPEED = 50.f; // movement speed pixels/second
 const float Cow::MAX_FORWARD_FORCE = 1.5f;
@@ -102,6 +103,7 @@ void Cow::step(float time)
 	float b = -steering.x * std::sin(theta) + steering.y * std::cos(theta);
 
 	// clamp forces
+	// TODO scale max turning speed by velocity
 	a = clamp<float>(-MAX_REVERSE_FORCE, a, MAX_FORWARD_FORCE);
 	b = clamp<float>(-MAX_LATERAL_FORCE, b, MAX_LATERAL_FORCE);
 
@@ -189,7 +191,34 @@ void Cow::flee(const Cow & cow)
 void Cow::flee_f()
 {
 	pursue_f();
-	steering_direction = 2.f * body.getPosition() - steering_direction;
+	// temporarily make the steering direction relative
+	steering_direction = body.getPosition() - steering_direction;
+	//steering_direction = 2.f * body.getPosition() - steering_direction;
+	float mag = v2mag<float>(steering_direction);
+	if (mag == 0.f) // somehow caught, run randomly
+	{
+		wander_f();
+	}
+	else // otherwise run with speed inversly proportional to distance
+	{
+		debug_s.str("");
+		sf::Vector2f test = steering_direction * (MAX_THREAT_DIST - (mag > MAX_THREAT_DIST ? MAX_THREAT_DIST : mag)) / mag;
+		debug_s << "mag:" << mag << " new:" << (float)(MAX_THREAT_DIST - (mag > MAX_THREAT_DIST ? MAX_THREAT_DIST : mag)) << " vec:(" << test.x << "," << test.y << ")";
+		//cerr << steering_direction.x << "," << steering_direction.y << " " <<  mag << " " << v2mag<float>(steering_direction) << endl;
+		steering_direction += body.getPosition();
+	}
+}
+
+void Cow::wander()
+{
+	think = &Cow::wander_f;
+}
+
+void Cow::wander_f()
+{
+	// TODO implement good wandering
+	float theta = randm<float>(2 * M_PI);
+	steering_direction = body.getPosition() + sf::Vector2f(std::cos(theta), std::sin(theta)) * MAX_THREAT_DIST;
 }
 
 void Cow::move_to(const sf::Vector2f & pos)
