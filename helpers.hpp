@@ -58,10 +58,10 @@ template <class T>
 sf::Vector2<T> truncate(sf::Vector2<T> v, T max)
 {
 	T mag = v2mag(v);
-	if (mag > max)
-		return v * max / mag;
-	else
+	if (mag <= max || mag == 0)
 		return v;
+	else
+		return v * max / mag;
 }
 
 #endif
