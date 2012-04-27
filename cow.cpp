@@ -72,7 +72,7 @@ void Cow::setHead(float dir, float time)
 	// TODO refactor
 	head.setPosition(body.getTransform() * v2f(BLENGTH, BWIDTH / 2.f));
 	head.setRotation(dir + hd);
-	float d = rad2deg(atan2(steering_direction.y - body.getPosition().y, steering_direction.x - body.getPosition().x));
+	float d = rad2deg(atan2(steering_direction.y - pos().y, steering_direction.x - pos().x));
 	head.rotate(clamp<float>(-HTURN_SPEED, fmodp(d - dir - hd, 360.f), HTURN_SPEED) * time);
 	hd = clamp<float>(-65.f, fmodp(head.getRotation() - dir, 360.f), 65.f);
 
@@ -94,12 +94,12 @@ void Cow::step(float time)
 	// TODO make sure I didn't screw something up by making steering direction absolute
 	float theta = deg2rad(body.getRotation());
 
-	v2f steering = steering_direction - body.getPosition();
+	v2f steering = steering_direction - pos();
 
 	if (debug)
 	{
 		dbg_dir.setSize(v2f(std::sqrt(steering.x * steering.x + steering.y * steering.y), 1.f));
-		dbg_dir.setPosition(body.getPosition());
+		dbg_dir.setPosition(pos());
 		dbg_dir.setRotation(rad2deg(std::atan2(steering.y, steering.x)));
 	}
 
@@ -127,10 +127,10 @@ void Cow::step(float time)
 	if (debug)
 	{
 		dbg_vel.setSize(v2f(std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y), 1.f));
-		dbg_vel.setPosition(body.getPosition());
+		dbg_vel.setPosition(pos());
 		dbg_vel.setRotation(body.getRotation());
 		dbg_str.setSize(v2f(std::sqrt(steering.x * steering.x + steering.y * steering.y) * 20, 1.f));
-		dbg_str.setPosition(body.getPosition());
+		dbg_str.setPosition(pos());
 		dbg_str.setRotation(rad2deg(std::atan2(steering.y, steering.x)));
 	}
 
@@ -209,15 +209,15 @@ void Cow::flee_f()
 	//debug_s.str("");
 	//debug_s << "orig:(" << steering_direction.x << "," << steering_direction.y << ") ";
 	// temporarily make the steering direction relative
-	steering_direction = body.getPosition() - steering_direction;
+	steering_direction = pos() - steering_direction;
 	float mag = v2mag<float>(steering_direction);
 	if (mag == 0.f) // somehow caught, run randomly
 	{
-		steering_direction = body.getPosition() + Vec2f(randm<float>(2.f * M_PI), MAX_THREAT_DIST);
+		steering_direction = pos() + Vec2f(randm<float>(2.f * M_PI), MAX_THREAT_DIST);
 	}
 	else // otherwise run with speed inversly proportional to distance
 	{
-		steering_direction = body.getPosition() + steering_direction * (MAX_THREAT_DIST - (mag > MAX_THREAT_DIST ? MAX_THREAT_DIST : mag)) / mag;
+		steering_direction = pos() + steering_direction * (MAX_THREAT_DIST - (mag > MAX_THREAT_DIST ? MAX_THREAT_DIST : mag)) / mag;
 	}
 }
 
@@ -231,7 +231,7 @@ void Cow::wander_f()
 {
 	float phi = deg2rad(dir());
 	//                   your position      + relative center circle    + radius of the wander circle oriented at relative theta
-	steering_direction = body.getPosition() + Vec2f(phi, SLOW_DISTANCE) + Vec2f(phi + target.theta, SLOW_DISTANCE - BLENGTH / 2.f);
+	steering_direction = pos() + Vec2f(phi, SLOW_DISTANCE) + Vec2f(phi + target.theta, SLOW_DISTANCE - BLENGTH / 2.f);
 }
 
 void Cow::move_to(const v2f & pos)
@@ -242,3 +242,65 @@ void Cow::move_to(const v2f & pos)
 }
 
 void Cow::move_to_f() {}
+
+void Cow::flock()
+{
+	think = &Cow::flock_f;
+}
+
+void Cow::flock_f()
+{
+	// TODO separate different factors, define different
+	// parameters for each?
+	
+	// these are what control flocking
+	v2f match_alignment, follow, uncrowd;
+
+	v2f total (0, 0);
+	int count = 0;
+	float m;
+	for (auto cow : neighbors)
+	{
+		m = v2mag(cow->vel());
+		if (m > 0)
+		{
+			count++;
+			total += cow->vel() / m;
+		}
+	}
+	if (count != 0)
+	{
+		match_alignment = total * (60.f / count);
+	}
+	else // TODO ehhhh...
+		match_alignment = Vec2f(deg2rad(body.getRotation()), 60.f);
+
+////////////////////////////////////////////////////////////////////////////////
+
+	// TODO maybe want to use actual position?
+	total = v2f(0, 0);
+	for (auto cow: neighbors)
+	{
+		total += predict_pos(*cow);
+	}
+	total /= float (neighbors.size());
+
+	follow = truncate<float>(total, 90.f);
+
+////////////////////////////////////////////////////////////////////////////////
+
+	total = v2f(0, 0);
+	for (auto cow: neighbors)
+	{
+		total += cow->pos();
+	}
+	total /= float (neighbors.size());
+
+	uncrowd = pos() - total;
+	// TODO scaling?
+
+	// TODO how to take different weights into account...
+	steering_direction = pos() + (match_alignment + follow + uncrowd) / 3.f;
+}
+
+// TODO really need unaligned obstacle avoidance

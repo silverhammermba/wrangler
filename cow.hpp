@@ -18,7 +18,6 @@ class Cow
 	sf::Vector2f velocity;
 	sf::Vector2f steering_direction;
 	sf::Color color;
-	std::vector<const Cow *> neighbors;
 	void (Cow::*think)(void);
 	union target_t
 	{
@@ -30,7 +29,9 @@ class Cow
 	void flee_f();
 	void wander_f();
 	void move_to_f();
+	void flock_f();
 public:
+	std::vector<const Cow *> neighbors;
 	std::ostringstream debug_s; // TODO DEBUG
 	static const float D_THRESHOLD;
 	static const float BLENGTH;
@@ -49,8 +50,8 @@ public:
 	const float C_MAX_LATERAL_FORCE() const;
 	bool debug;
 	explicit Cow(const sf::Vector2f & position = sf::Vector2f(0, 0), const float direction = 0);
-	const sf::Vector2f & pos() const { return body.getPosition(); }
-	const float dir() const { return body.getRotation(); }
+	inline const sf::Vector2f & pos() const { return body.getPosition(); }
+	inline const float dir() const { return body.getRotation(); }
 	const sf::Vector2f & vel() const { return velocity; }
 	const sf::Vector2f & str() const { return steering_direction; }
 	void setColor(const sf::Color &);
@@ -66,6 +67,7 @@ public:
 	void flee(const Cow & cow);
 	void wander();
 	void move_to(const sf::Vector2f & pos);
+	void flock();
 };
 
 #endif

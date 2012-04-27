@@ -42,24 +42,24 @@ int main(int argc, char *argv[])
 	sf::View view (window.getView());
 
 	// set up the cows TODO would be nice to move this to the contstructor
-	COWS = 3;
+	//COWS = 3;
+	// TODO use a proper container here
+	// TODO where the hell am I constructing these?
 	Cow *cows = new Cow[COWS];
-	for(Cow *cow = cows; cow != cows + COWS; cow++)
+	for (Cow *cow = cows; cow != cows + COWS; cow++)
 	{
 		cow->setPos(sf::Vector2f(randm<float>(800), randm<float>(600)));
+		switch (std::rand() % 3)
+		{
+			case 0:
+				cow->setColor(sf::Color(10.f, 10.f, 10.f));
+				break;
+			case 1:
+				cow->setColor(sf::Color(127.f, 127.f, 0.f));
+				break;
+		}
 		//cow->setPos(sf::Vector2f(400, 300));
 	}
-
-	//cows[0].setColor(sf::Color(200.f, 0.f, 0.f));
-	cows[1].setColor(sf::Color(10.f, 10.f, 10.f));
-	cows[2].setColor(sf::Color(127.f, 127.f, 0.f));
-
-	cows[1].setPos(sf::Vector2f(400.f, 300.f));
-
-	//cows[0].move_to(sf::Vector2f(400.f, 300.f));
-	cows[0].wander();
-	cows[1].flee(cows[2]);
-	cows[2].pursue(cows[1]);
 
 	unsigned int i = 0;
 	int freq = 1;
@@ -78,14 +78,15 @@ int main(int argc, char *argv[])
 				window.close();
 			else if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::R))
 			{
-				for(Cow *cow = cows; cow != cows + COWS; cow++)
+				for (Cow *cow = cows; cow != cows + COWS; cow++)
 				{
 					cow->setPos(sf::Vector2f(randm<float>(800), randm<float>(600)));
+					cow->wander();
 				}
 			}
 			else if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::D))
 			{
-				for(Cow *cow = cows; cow != cows + COWS; cow++)
+				for (Cow *cow = cows; cow != cows + COWS; cow++)
 				{
 					cow->debug = !(cow->debug);
 				}
@@ -125,14 +126,44 @@ int main(int argc, char *argv[])
 		clock.restart();
 
 		// AI
-		if(ai.getElapsedTime().asSeconds() >= AI_INTERVAL)
+		if (ai.getElapsedTime().asSeconds() >= AI_INTERVAL)
 		{
 			ai.restart();
+
+			for (Cow *cow = cows; cow != cows + COWS; cow++)
+			{
+				cow->resetN();
+			}
+
+			for (Cow *cow = cows; cow != cows + (COWS - 1); cow++)
+			{
+				for (Cow *other = cow + 1; other != cows + COWS; other++)
+				{
+					if (v2dist<float>(cow->pos(), other->pos()) < Cow::D_THRESHOLD)
+					{
+						cow->addCow(other);
+						other->addCow(cow);
+					}
+				}
+			}
+
+			for (Cow *cow = cows; cow != cows + COWS; cow++)
+			{
+				if (cow->neighbors.size() > 3)
+				{
+					cow->flock();
+				}
+				else
+				{
+					cow->wander();
+				}
+			}
+
 			// TODO get a proper clock for this
 			fps_s.str("");
 			fps_s << "FPS " << int (1.f / time);
 			fps.setString(fps_s.str());
-			debug.setString(cows[0].debug_s.str() + "," + cows[1].debug_s.str() + "," + cows[2].debug_s.str());
+			debug.setString(cows[0].debug_s.str() + "\n" + cows[1].debug_s.str() + "\n" + cows[2].debug_s.str());
 		}
 
 
