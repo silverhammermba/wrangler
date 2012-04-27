@@ -44,6 +44,7 @@ public:
 	static const float MAX_FORWARD_FORCE;
 	static const float MAX_LATERAL_FORCE;
 	static const float MAX_REVERSE_FORCE;
+	const float C_MAX_LATERAL_FORCE() const;
 	bool debug;
 	explicit Cow(const sf::Vector2f & position = sf::Vector2f(0, 0), const float direction = 0);
 	const sf::Vector2f & pos() const { return body.getPosition(); }

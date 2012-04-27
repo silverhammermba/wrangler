@@ -16,7 +16,7 @@ const float Cow::BLENGTH = 14.f; // body length
 const float Cow::BWIDTH = 7.f; // body width
 const float Cow::HLENGTH = 7.f; // head length
 const float Cow::HWIDTH = 4.f; // head width
-const float Cow::HTURN_SPEED = 144.f; // head turn speed degrees/second
+const float Cow::HTURN_SPEED = 180.f; // head turn speed degrees/second
 const float Cow::MASS = 1.f;
 const float Cow::MAX_THREAT_DIST = 200.f; // distance at which cows consider threads
 const float Cow::SLOW_DISTANCE = 30.f; // distance at which cows start slowing down
@@ -83,6 +83,11 @@ void Cow::setPos(const sf::Vector2f & pos)
 	body.setPosition(pos);
 }
 
+const float Cow::C_MAX_LATERAL_FORCE() const
+{
+	return MAX_LATERAL_FORCE * v2mag<float>(velocity) / MAX_SPEED;
+}
+
 void Cow::step(float time)
 {
 	(this->*think)();
@@ -103,9 +108,9 @@ void Cow::step(float time)
 	float b = -steering.x * std::sin(theta) + steering.y * std::cos(theta);
 
 	// clamp forces
-	// TODO scale max turning speed by velocity
+	float max_lateral_force = C_MAX_LATERAL_FORCE();
 	a = clamp<float>(-MAX_REVERSE_FORCE, a, MAX_FORWARD_FORCE);
-	b = clamp<float>(-MAX_LATERAL_FORCE, b, MAX_LATERAL_FORCE);
+	b = clamp<float>(-max_lateral_force, b, max_lateral_force);
 
 	// convert force to new velocity and move the cow
 	steering = sf::Vector2f(a * std::cos(theta) - b * std::sin(theta), a * std::sin(theta) + b * std::cos(theta));
@@ -130,8 +135,9 @@ void Cow::step(float time)
 	}
 
 	// update body, head orientation
+	// TODO somehow give cows a direction when they have no velocity!!!
 	body.setRotation(rad2deg(atan2(velocity.y, velocity.x)));
-	setHead(body.getRotation(), time); // update the head
+	setHead(body.getRotation(), time);
 }
 
 void Cow::addCow(const Cow * cow)
@@ -165,23 +171,28 @@ void Cow::pursue(const Cow & cow)
 
 void Cow::pursue_f()
 {
+	// if you and the target are aligned, going straight towards the target is best
 	if (std::abs(v2angle(target.cow->pos() - pos(), target.cow->velocity)) > 135.f)
 	{
 		steering_direction = target.cow->pos();
 		if (debug) body.setFillColor(sf::Color(255.f, 0.f, 0.f));
 	}
-	else
+	else // otherwise use a simple predicted position
 	{
 		steering_direction = predict_pos(*target.cow);
 		if (debug) setColor(color);
 	}
 }
 
+// predict the future position of a cow (simply)
 sf::Vector2f Cow::predict_pos(const Cow & cow) const
 {
-	return (cow.vel() * v2dist(pos(), cow.pos()) / v2mag(velocity)) + cow.pos();
+	float v = v2mag(velocity);
+	if (v == 0.f) v = MAX_SPEED;
+	return (cow.vel() * v2dist(pos(), cow.pos()) / v) + cow.pos();
 }
 
+// (literally) the opposite of pursue
 void Cow::flee(const Cow & cow)
 {
 	target.cow = &cow;
@@ -191,9 +202,10 @@ void Cow::flee(const Cow & cow)
 void Cow::flee_f()
 {
 	pursue_f();
+	//debug_s.str("");
+	//debug_s << "orig:(" << steering_direction.x << "," << steering_direction.y << ") ";
 	// temporarily make the steering direction relative
 	steering_direction = body.getPosition() - steering_direction;
-	//steering_direction = 2.f * body.getPosition() - steering_direction;
 	float mag = v2mag<float>(steering_direction);
 	if (mag == 0.f) // somehow caught, run randomly
 	{
@@ -201,11 +213,7 @@ void Cow::flee_f()
 	}
 	else // otherwise run with speed inversly proportional to distance
 	{
-		debug_s.str("");
-		sf::Vector2f test = steering_direction * (MAX_THREAT_DIST - (mag > MAX_THREAT_DIST ? MAX_THREAT_DIST : mag)) / mag;
-		debug_s << "mag:" << mag << " new:" << (float)(MAX_THREAT_DIST - (mag > MAX_THREAT_DIST ? MAX_THREAT_DIST : mag)) << " vec:(" << test.x << "," << test.y << ")";
-		//cerr << steering_direction.x << "," << steering_direction.y << " " <<  mag << " " << v2mag<float>(steering_direction) << endl;
-		steering_direction += body.getPosition();
+		steering_direction = body.getPosition() + steering_direction * (MAX_THREAT_DIST - (mag > MAX_THREAT_DIST ? MAX_THREAT_DIST : mag)) / mag;
 	}
 }
 
