@@ -24,6 +24,7 @@ class Cow
 	{
 		const Cow * cow;
 		const sf::Vector2f * pos;
+		float theta;
 	} target;
 	void pursue_f();
 	void flee_f();
@@ -44,6 +45,7 @@ public:
 	static const float MAX_FORWARD_FORCE;
 	static const float MAX_LATERAL_FORCE;
 	static const float MAX_REVERSE_FORCE;
+	static const float MAX_WANDER_DTHETA;
 	const float C_MAX_LATERAL_FORCE() const;
 	bool debug;
 	explicit Cow(const sf::Vector2f & position = sf::Vector2f(0, 0), const float direction = 0);

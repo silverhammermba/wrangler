@@ -5,11 +5,15 @@
 #include <algorithm>
 #include <SFML/System.hpp>
 
+typedef sf::Vector2f v2f;
+
 // like fmod, but returns a number in [-d/2,d/2]
 float fmodp(float n, float d);
 
 float rad2deg(float rad);
 float deg2rad(float deg);
+
+v2f Vec2f(const float theta, const float mag);
 
 // constrain x to [lb, ub]
 template <class T>

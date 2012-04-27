@@ -20,3 +20,7 @@ float deg2rad(float deg)
 	return deg * M_PI / 180.f;
 }
 
+v2f Vec2f(const float theta, const float mag)
+{
+	return v2f(std::cos(theta), std::sin(theta)) * mag;
+}

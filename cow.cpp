@@ -11,7 +11,7 @@ using std::endl;
 
 #define _USE_MATH_DEFINES
 
-const float Cow::D_THRESHOLD = 80.f; // how far away cows look
+const float Cow::D_THRESHOLD = 80.f; // how far away cows look TODO combine with MAX_THREAT_DIST?
 const float Cow::BLENGTH = 14.f; // body length
 const float Cow::BWIDTH = 7.f; // body width
 const float Cow::HLENGTH = 7.f; // head length
@@ -24,9 +24,10 @@ const float Cow::MAX_SPEED = 50.f; // movement speed pixels/second
 const float Cow::MAX_FORWARD_FORCE = 1.5f;
 const float Cow::MAX_LATERAL_FORCE = 1.f;
 const float Cow::MAX_REVERSE_FORCE = 0.5f;
+const float Cow::MAX_WANDER_DTHETA = M_PI; // rate at which wander direction changes in rads/sec
 
-Cow::Cow(const sf::Vector2f & pos, const float dir) :
-	body(sf::Vector2f(BLENGTH, BWIDTH)), head(sf::Vector2f(HLENGTH, HWIDTH)), velocity(0.f, 0.f), steering_direction(0.f, 0.f)
+Cow::Cow(const v2f & pos, const float dir) :
+	body(v2f(BLENGTH, BWIDTH)), head(v2f(HLENGTH, HWIDTH)), velocity(0.f, 0.f), steering_direction(0.f, 0.f)
 {
 	debug = false;
 	hd = 0.f;
@@ -61,8 +62,7 @@ void Cow::setColor(const sf::Color & clr)
 
 void Cow::setDir(const float deg)
 {
-	float rad = deg2rad(deg);
-	velocity = sf::Vector2f(std::cos(rad), std::sin(rad)) * randm<float>(MAX_SPEED);
+	velocity = Vec2f(deg2rad(deg), randm<float>(MAX_SPEED));
 	body.setRotation(deg);
 }
 
@@ -70,7 +70,7 @@ void Cow::setDir(const float deg)
 void Cow::setHead(float dir, float time)
 {
 	// TODO refactor
-	head.setPosition(body.getTransform() * sf::Vector2f(BLENGTH, BWIDTH / 2.f));
+	head.setPosition(body.getTransform() * v2f(BLENGTH, BWIDTH / 2.f));
 	head.setRotation(dir + hd);
 	float d = rad2deg(atan2(steering_direction.y - body.getPosition().y, steering_direction.x - body.getPosition().x));
 	head.rotate(clamp<float>(-HTURN_SPEED, fmodp(d - dir - hd, 360.f), HTURN_SPEED) * time);
@@ -78,7 +78,7 @@ void Cow::setHead(float dir, float time)
 
 }
 
-void Cow::setPos(const sf::Vector2f & pos)
+void Cow::setPos(const v2f & pos)
 {
 	body.setPosition(pos);
 }
@@ -94,11 +94,11 @@ void Cow::step(float time)
 	// TODO make sure I didn't screw something up by making steering direction absolute
 	float theta = deg2rad(body.getRotation());
 
-	sf::Vector2f steering = steering_direction - body.getPosition();
+	v2f steering = steering_direction - body.getPosition();
 
 	if (debug)
 	{
-		dbg_dir.setSize(sf::Vector2f(std::sqrt(steering.x * steering.x + steering.y * steering.y), 1.f));
+		dbg_dir.setSize(v2f(std::sqrt(steering.x * steering.x + steering.y * steering.y), 1.f));
 		dbg_dir.setPosition(body.getPosition());
 		dbg_dir.setRotation(rad2deg(std::atan2(steering.y, steering.x)));
 	}
@@ -113,7 +113,7 @@ void Cow::step(float time)
 	b = clamp<float>(-max_lateral_force, b, max_lateral_force);
 
 	// convert force to new velocity and move the cow
-	steering = sf::Vector2f(a * std::cos(theta) - b * std::sin(theta), a * std::sin(theta) + b * std::cos(theta));
+	steering = v2f(a * std::cos(theta) - b * std::sin(theta), a * std::sin(theta) + b * std::cos(theta));
 	steering /= MASS; // force to acceleration
 
 	float distance = v2dist(pos(), steering_direction);
@@ -126,10 +126,10 @@ void Cow::step(float time)
 	// update debug lines
 	if (debug)
 	{
-		dbg_vel.setSize(sf::Vector2f(std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y), 1.f));
+		dbg_vel.setSize(v2f(std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y), 1.f));
 		dbg_vel.setPosition(body.getPosition());
 		dbg_vel.setRotation(body.getRotation());
-		dbg_str.setSize(sf::Vector2f(std::sqrt(steering.x * steering.x + steering.y * steering.y) * 20, 1.f));
+		dbg_str.setSize(v2f(std::sqrt(steering.x * steering.x + steering.y * steering.y) * 20, 1.f));
 		dbg_str.setPosition(body.getPosition());
 		dbg_str.setRotation(rad2deg(std::atan2(steering.y, steering.x)));
 	}
@@ -138,6 +138,10 @@ void Cow::step(float time)
 	// TODO somehow give cows a direction when they have no velocity!!!
 	body.setRotation(rad2deg(atan2(velocity.y, velocity.x)));
 	setHead(body.getRotation(), time);
+
+	// TODO perhaps this should go elsewhere...
+	if (think == &Cow::wander_f)
+		target.theta += (randm<float>(2 * MAX_WANDER_DTHETA) - MAX_WANDER_DTHETA) * time;
 }
 
 void Cow::addCow(const Cow * cow)
@@ -185,7 +189,7 @@ void Cow::pursue_f()
 }
 
 // predict the future position of a cow (simply)
-sf::Vector2f Cow::predict_pos(const Cow & cow) const
+v2f Cow::predict_pos(const Cow & cow) const
 {
 	float v = v2mag(velocity);
 	if (v == 0.f) v = MAX_SPEED;
@@ -209,7 +213,7 @@ void Cow::flee_f()
 	float mag = v2mag<float>(steering_direction);
 	if (mag == 0.f) // somehow caught, run randomly
 	{
-		wander_f();
+		steering_direction = body.getPosition() + Vec2f(randm<float>(2.f * M_PI), MAX_THREAT_DIST);
 	}
 	else // otherwise run with speed inversly proportional to distance
 	{
@@ -219,17 +223,18 @@ void Cow::flee_f()
 
 void Cow::wander()
 {
+	target.theta = 0.f;
 	think = &Cow::wander_f;
 }
 
 void Cow::wander_f()
 {
-	// TODO implement good wandering
-	float theta = randm<float>(2 * M_PI);
-	steering_direction = body.getPosition() + sf::Vector2f(std::cos(theta), std::sin(theta)) * MAX_THREAT_DIST;
+	float phi = deg2rad(dir());
+	//                   your position      + relative center circle    + radius of the wander circle oriented at relative theta
+	steering_direction = body.getPosition() + Vec2f(phi, SLOW_DISTANCE) + Vec2f(phi + target.theta, SLOW_DISTANCE - BLENGTH / 2.f);
 }
 
-void Cow::move_to(const sf::Vector2f & pos)
+void Cow::move_to(const v2f & pos)
 {
 	target.pos = &pos;
 	steering_direction = pos;
